@@ -1,7 +1,8 @@
-const ipc = require('ipc');
+const ipcRenderer = require('electron').ipcRenderer;
 const moment = require('moment');
 const React = require('react');
 const ReactDOM = require('react-dom');
+const toastr = require('toastr');
 
 const Log = React.createClass({
 	renderLog: function (log) {
@@ -36,6 +37,24 @@ const Logger = React.createClass({
 		return React.createElement('pre', {className: 'logger'}, this.filterLogs(this.props.logs, this.props.filter).map(function (log) {
 			return React.createElement(Log, {key: log.id, log: log});
 		}));
+	}
+});
+
+const FileComponent = React.createClass({
+	getInitialState: function () {
+		return {filePath: ''};
+	},
+	onChange: function (e) {
+		this.setState({filePath: e.target.value});
+	},
+	sendValue: function (e) {
+		console.log('File', this.state.filePath);
+		ipcRenderer.send('watch', this.state.filePath);
+		return false;
+	},
+	render: function () {
+		const input = React.createElement('input', {className: 'form-control', type: 'text', onChange: this.onChange});
+		return React.createElement('form', {onSubmit: this.sendValue, action: 'javascript:void(0);'}, input);
 	}
 });
 
@@ -79,11 +98,21 @@ const App = React.createClass({
 		return {logs: logs, filter: filter, lockScroll: true};
 	},
 	componentDidMount: function () {
-		ipc.on('asynchronous-message', (function (event, arg) {
+		ipcRenderer.on('newLogEvent', (function (event, log) {
 			const logs = this.state.logs;
-			logs.push({id: logs.length,date: event.date, msg: 'lfkldkflkdflkdfllklkk'});
+			logs.push({id: logs.length, date: log.date, msg: log.msg});
 			this.setState({logs: logs});
 		}).bind(this));
+
+		ipcRenderer.on('error', function (event, msg) {
+			console.log('error', msg);
+			toastr.error("The file doesn't exist", "Logger doesn't work");
+		});
+
+		ipcRenderer.on('filewatching', function (event, msg) {
+			console.log('mlmlmlml');
+			toastr.success('The file is correct', 'Logger is working');
+		});
 
 		window.addEventListener('filter', (function (e) {
 			this.setState({filter: e.detail});
@@ -100,9 +129,10 @@ const App = React.createClass({
 
 	render: function () {
 		var filtersDiv = React.createElement('div', {className: 'col-xs-3'}, React.createElement(Filters, {filter: this.state.filter}));
-		var clearDiv = React.createElement('div', {className: 'col-xs-3'}, React.createElement(ClearButton));
-		var lockScrollDiv = React.createElement('div', {className: 'col-xs-3'}, React.createElement(LockScroll, {lockScroll: this.state.lockScroll}));
-		var toolsDiv = React.createElement('div', {className: 'row'}, [filtersDiv, clearDiv, lockScrollDiv]);
+		var clearDiv = React.createElement('div', {className: 'col-xs-1'}, React.createElement(ClearButton));
+		var lockScrollDiv = React.createElement('div', {className: 'col-xs-2'}, React.createElement(LockScroll, {lockScroll: this.state.lockScroll}));
+		var fileDiv = React.createElement('div', {className: 'col-xs-3'}, React.createElement(FileComponent));
+		var toolsDiv = React.createElement('div', {className: 'row'}, [filtersDiv, clearDiv, lockScrollDiv, fileDiv]);
 
 		return (
 		React.createElement('div', null,

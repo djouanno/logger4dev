@@ -2,6 +2,7 @@
 
 const electron = require('electron');
 const express = require('express');
+const tail = require('./main/tail');
 
 // Module to control application life.
 const app = electron.app;
@@ -24,6 +25,8 @@ function createWindow () {
 	// Open the DevTools.
 	mainWindow.webContents.openDevTools();
 
+	// Listener event on file
+	tail.init();
 	// Emitted when the window is closed.
 	mainWindow.on('closed', function () {
 		// Dereference the window object, usually you would store windows
