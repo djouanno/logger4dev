@@ -4,41 +4,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const toastr = require('toastr');
 
-const Log = React.createClass({
-	renderLog: function (log) {
-		return moment(log.date).format('DD/MM/YYYY HH:mm:ss') + ' - ' + log.msg;
-	},
-	render: function () {
-		return React.createElement('div', {},
-			React.createElement('span', {}, this.renderLog(this.props.log)),
-			React.createElement('br'));
-	}
-});
-
-const Logger = React.createClass({
-	componentDidUpdate: function () {
-		if (this.props.lockScroll) {
-			const node = ReactDOM.findDOMNode(this);
-			node.scrollTop = node.scrollHeight;
-		}
-	},
-	componentDidMount: function () {
-		if (this.props.lockScroll) {
-			const node = ReactDOM.findDOMNode(this);
-			node.scrollTop = node.scrollHeight;
-		}
-	},
-	filterLogs: function (logs, filter) {
-		return filteredLogs = logs.filter(function (log) {
-			return log.msg.indexOf(filter.id) !== -1;
-		});
-	},
-	render: function () {
-		return React.createElement('pre', {className: 'logger'}, this.filterLogs(this.props.logs, this.props.filter).map(function (log) {
-			return React.createElement(Log, {key: log.id, log: log});
-		}));
-	}
-});
+const Logs = require('./components/logger/logs');
 
 const FileComponent = React.createClass({
 	getInitialState: function () {
@@ -138,7 +104,7 @@ const App = React.createClass({
 		React.createElement('div', null,
 			toolsDiv,
 			React.createElement('br'),
-			React.createElement(Logger, {logs: this.state.logs, filter: this.state.filter, lockScroll: this.state.lockScroll}))
+			React.createElement(Logs, {logs: this.state.logs, filter: this.state.filter, lockScroll: this.state.lockScroll}))
 		);
 	}
 });

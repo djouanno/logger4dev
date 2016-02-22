@@ -71,4 +71,4 @@ server.get('/', function (req, res) {
 	res.send(JSON.stringify(data));
 });
 
-server.listen(8080);
+server.listen(4242);
