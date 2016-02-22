@@ -5,6 +5,7 @@ const ReactDOM = require('react-dom');
 const toastr = require('toastr');
 
 const Logs = require('./components/logger/logs');
+const Menu = require('./components/menu');
 
 const FileComponent = React.createClass({
 	getInitialState: function () {
@@ -100,12 +101,9 @@ const App = React.createClass({
 		var fileDiv = React.createElement('div', {className: 'col-xs-3'}, React.createElement(FileComponent));
 		var toolsDiv = React.createElement('div', {className: 'row'}, [filtersDiv, clearDiv, lockScrollDiv, fileDiv]);
 
-		return (
-		React.createElement('div', null,
-			toolsDiv,
-			React.createElement('br'),
-			React.createElement(Logs, {logs: this.state.logs, filter: this.state.filter, lockScroll: this.state.lockScroll}))
-		);
+		var workspace = React.createElement('div', {id: 'workspace'}, toolsDiv, React.createElement(Logs, {logs: this.state.logs, filter: this.state.filter, lockScroll: this.state.lockScroll}));
+
+		return React.createElement('div', {id: 'app'}, React.createElement(Menu), workspace);
 	}
 });
 
