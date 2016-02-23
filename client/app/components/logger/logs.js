@@ -22,7 +22,7 @@ const Logs = React.createClass({
 		});
 	},
 	render: function () {
-		return React.createElement('pre', {className: 'logger'}, this.filterLogs(this.props.logs, this.props.filter).map(function (log) {
+		return React.createElement('pre', {className: 'logger'}, this.filterLogs(this.props.logs, this.props.filter).slice(-1000).map(function (log) {
 			return React.createElement(Log, {key: log.id, log: log});
 		}));
 	}

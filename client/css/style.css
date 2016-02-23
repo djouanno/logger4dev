@@ -1,13 +1,62 @@
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
+
 #menu {
-  width: 200px;
-  margin: 10px;
+
 }
 
 #workspace {
   flex: 1;
   margin: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
-  #app {
+#content {
+  height: 100%;
+}
+
+#app {
   display: flex;
+  height: 100%;
+}
+
+#logger {
+  flex: 1;
+  overflow: auto;
+}
+
+#left-panel {
+  width: 220px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  margin: 10px;
+}
+
+#toolbar {
+  justify-content: space-between;
+  display: flex;
+  margin-bottom: 10px;
+}
+
+#bottom-left-panel {
+  display: flex;
+  justify-content: space-between;
+}
+
+pre {
+  flex: 1;
+}
+
+.fa-inner-input {
+  line-height: 34px;
+  font-family: 'FontAwesome' !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
 }

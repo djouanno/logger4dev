@@ -15,7 +15,6 @@ const FileComponent = React.createClass({
 		this.setState({filePath: e.target.value});
 	},
 	sendValue: function (e) {
-		console.log('File', this.state.filePath);
 		ipcRenderer.send('watch', this.state.filePath);
 		return false;
 	},
@@ -36,7 +35,7 @@ const ClearButton = React.createClass({
 
 const LockScroll = React.createClass({
 	onClick: function (e) {
-		window.dispatchEvent(new CustomEvent('lockScroll', {'detail': !this.props.lockScroll}));
+			window.dispatchEvent(new CustomEvent('lockScroll', {'detail': !this.props.lockScroll}));
 	},
 	render: function () {
 		const checkbox = React.createElement('i', {className: 'fa fa-fw' + (this.props.lockScroll ? 'fa fa-lock' : 'fa fa-unlock')});
@@ -45,11 +44,29 @@ const LockScroll = React.createClass({
 });
 
 const Filters = React.createClass({
+	getInitialState: function () {
+		return {timeoutId: undefined};
+	},
 	onChange: function (e) {
-		window.dispatchEvent(new CustomEvent('filter', {'detail': {id: e.target.value}}));
+		var value =  e.target.value;
+		clearTimeout(this.state.timeoutId);
+		var timemoutId = setTimeout((function () {
+			window.dispatchEvent(new CustomEvent('filter', {'detail': {id: value}}));
+			this.setState({timeoutId: undefined});
+		}).bind(this), 500);
+
+		this.setState({timeoutId: timemoutId});
 	},
 	render: function () {
-		return React.createElement('input', {className: 'form-control', onChange: this.onChange});
+		var spinner = React.createElement('span', {className: 'fa fa-spin fa-spinner fa-inner-input form-control-feedback'});
+		var input  = React.createElement('input', {className: 'form-control', onChange: this.onChange});
+
+		var elements = [];
+		elements.push(input);
+		if(this.state.timeoutId) {
+			elements.push(spinner);
+		}
+		return  React.createElement('div', {className:'has-feedback'}, elements);
 	}
 });
 
@@ -58,11 +75,22 @@ const App = React.createClass({
 		const logs = [];
 		const filter = {id: ''};
 
-		for (var i = 0; i < 500; i++) {
+		var projects = [{
+			name: 'Project 1',
+			file: 'C:/projects/project1.log'
+		}, {
+			name: 'Project 2',
+			file: 'C:/projects/project2.log'
+		}, {
+			name: 'Project 3',
+			file: 'C:/projects/project3.log'
+		}];
+
+		for (var i = 0; i < 2000; i++) {
 			logs.push({id: i, msg: 'Un super message n°' + i, date: moment()});
 		}
 
-		return {logs: logs, filter: filter, lockScroll: true};
+		return {logs: logs, filter: filter, projects: projects, lockScroll: true};
 	},
 	componentDidMount: function () {
 		ipcRenderer.on('newLogEvent', (function (event, log) {
@@ -95,15 +123,15 @@ const App = React.createClass({
 	},
 
 	render: function () {
-		var filtersDiv = React.createElement('div', {className: 'col-xs-3'}, React.createElement(Filters, {filter: this.state.filter}));
-		var clearDiv = React.createElement('div', {className: 'col-xs-1'}, React.createElement(ClearButton));
-		var lockScrollDiv = React.createElement('div', {className: 'col-xs-2'}, React.createElement(LockScroll, {lockScroll: this.state.lockScroll}));
-		var fileDiv = React.createElement('div', {className: 'col-xs-3'}, React.createElement(FileComponent));
-		var toolsDiv = React.createElement('div', {className: 'row'}, [filtersDiv, clearDiv, lockScrollDiv, fileDiv]);
+		var filtersDiv = React.createElement('div', {}, React.createElement(Filters, {filter: this.state.filter}));
+		var clearDiv = React.createElement('div', {}, React.createElement(ClearButton));
+		var lockScrollDiv = React.createElement('div', {}, React.createElement(LockScroll, {lockScroll: this.state.lockScroll}));
+		var fileDiv = React.createElement('div', {}, React.createElement(FileComponent));
+		var toolsDiv = React.createElement('div', {id: 'toolbar'}, [filtersDiv, clearDiv, lockScrollDiv, fileDiv]);
 
 		var workspace = React.createElement('div', {id: 'workspace'}, toolsDiv, React.createElement(Logs, {logs: this.state.logs, filter: this.state.filter, lockScroll: this.state.lockScroll}));
 
-		return React.createElement('div', {id: 'app'}, React.createElement(Menu), workspace);
+		return React.createElement('div', {id: 'app'}, React.createElement(Menu, {projects: this.state.projects}), workspace);
 	}
 });
 
